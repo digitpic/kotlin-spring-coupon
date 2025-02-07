@@ -1,5 +1,7 @@
 # kotlin-spring-coupon
 
+## step1 : pessimistic-lock 
+
 ## 문제
 - 편의점과 제휴로 총 100장의 쿠폰을 제공
 - 쿠폰은 회사에서 발급
