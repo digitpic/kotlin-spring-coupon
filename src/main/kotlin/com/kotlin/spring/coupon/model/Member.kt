@@ -16,7 +16,7 @@ class Member(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true)
-    private var id: Long = 0,
+    private val id: Long = 0,
 
     @Column(name = "is_issued")
     private var isIssued: Boolean = false,
@@ -26,7 +26,7 @@ class Member(
     private var coupon: Coupon? = null
 ) {
     fun issueCoupon() {
-        if (isIssued || coupon != null) {
+        if (isIssued) {
             throw IllegalStateException("쿠폰을 발급 받은 이력이 있습니다.")
         }
         coupon = Coupon.issue()
@@ -37,11 +37,7 @@ class Member(
         return isIssued
     }
 
-    fun getCoupon(): Coupon? {
-        if (coupon == null) {
-            throw IllegalStateException("쿠폰을 발급한 이력이 없습니다.")
-        }
-
-        return coupon
+    fun getCoupon(): Coupon {
+        return coupon!!
     }
 }

@@ -19,6 +19,8 @@ class Coupon(
     @Column(name = "code", unique = true)
     private val code: String
 ) {
+    constructor() : this(0, "")
+
     companion object {
         private const val DEFAULT_LENGTH: Int = 10
         private const val UPPERCASE_REGEX: String = ".*[A-Z].*"
