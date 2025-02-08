@@ -16,11 +16,16 @@ class CouponService(
     fun issue(userId: Long): Coupon {
         val member: Member = memberRepository.findById(userId).get()
 
+        if (member.isCouponIssued()) {
+            return member.getCoupon()
+        }
+
         member.issueCoupon()
 
         val coupon: Coupon = member.getCoupon()
 
         couponRepository.save(coupon)
+
         return coupon
     }
 }
