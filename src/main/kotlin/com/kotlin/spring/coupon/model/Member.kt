@@ -25,11 +25,11 @@ class Member(
     @JoinColumn(name = "coupon_id", referencedColumnName = "id", unique = true)
     private var coupon: Coupon? = null
 ) {
-    fun issueCoupon() {
+    fun issueCoupon(coupon: Coupon) {
         if (isIssued) {
             throw IllegalStateException("쿠폰을 발급 받은 이력이 있습니다.")
         }
-        coupon = Coupon.issue()
+        this.coupon = coupon
         isIssued = true
     }
 

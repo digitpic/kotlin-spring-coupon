@@ -21,7 +21,7 @@ class CouponService(
         val member: Member = memberRepository.findById(userId)
             .orElseThrow({ throw RuntimeException("회원 정보 없음") })
 
-        if (checkIssued(member)) {
+        if (member.isCouponIssued()) {
             return member.getCoupon()
         }
 
@@ -31,16 +31,16 @@ class CouponService(
             return null
         }
 
-        member.issueCoupon()
+        var coupon: Coupon = Coupon.issue()
 
-        val coupon: Coupon = member.getCoupon()
+        while (couponRepository.findByCode(coupon.getCode()).isNotEmpty()) {
+            coupon = Coupon.issue()
+        }
+
+        member.issueCoupon(coupon)
 
         couponRepository.save(coupon)
 
         return coupon
-    }
-
-    private fun checkIssued(member: Member): Boolean {
-        return member.isCouponIssued()
     }
 }

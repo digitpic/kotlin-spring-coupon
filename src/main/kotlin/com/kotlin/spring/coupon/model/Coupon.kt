@@ -14,7 +14,7 @@ class Coupon(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true)
-    private var id: Long = 0,
+    private val id: Long = 0,
 
     @Column(name = "code", unique = true)
     private val code: String
