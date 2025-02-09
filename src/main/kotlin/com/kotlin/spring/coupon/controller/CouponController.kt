@@ -16,12 +16,10 @@ class CouponController(
 ) {
     @GetMapping("/issue/{userId}")
     fun issueCoupon(@PathVariable userId: Long): ResponseEntity<CouponResponse> {
-        val coupon: Coupon? = couponService.issue(userId)
+        val code: String? = couponService.issue(userId)
             ?: return ResponseEntity.notFound().build()
 
-        val code: String = coupon!!.getCode()
-
         return ResponseEntity.ok()
-            .body(CouponResponse("success", userId, code))
+            .body(CouponResponse("success", userId, code!!))
     }
 }

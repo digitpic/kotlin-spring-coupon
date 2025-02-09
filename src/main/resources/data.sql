@@ -1,4 +1,7 @@
-INSERT INTO MEMBERS (is_issued, coupon_id)
+INSERT INTO COUPONS(code, remaining, version)
+VALUES ('', 100, 0);
+
+INSERT INTO MEMBERS (is_issued, code)
 VALUES (false, null),
        (false, null),
        (false, null),

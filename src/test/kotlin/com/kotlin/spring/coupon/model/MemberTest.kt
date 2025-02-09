@@ -40,10 +40,9 @@ class MemberTest {
         // when
         val coupon: Coupon = Coupon.issue()
         member.issueCoupon(coupon)
-        val returned: Coupon? = member.getCoupon()
-        val code: String = returned?.getCode() ?: ""
+        val returned: String? = member.getCode()
 
         // then
-        assertThat(code.length).isEqualTo(DEFAULT_LENGTH)
+        assertThat(returned!!.length).isEqualTo(DEFAULT_LENGTH)
     }
 }

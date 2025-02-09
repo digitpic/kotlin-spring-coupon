@@ -1,13 +1,10 @@
 package com.kotlin.spring.coupon.model
 
-import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 
 @Entity
@@ -21,15 +18,16 @@ class Member(
     @Column(name = "is_issued")
     private var isIssued: Boolean = false,
 
-    @OneToOne(cascade = [CascadeType.ALL])
-    @JoinColumn(name = "coupon_id", referencedColumnName = "id", unique = true)
-    private var coupon: Coupon? = null
+    @Column(name = "code")
+    private var code: String
 ) {
+    constructor() : this(code = "")
+
     fun issueCoupon(coupon: Coupon) {
         if (isIssued) {
             throw IllegalStateException("쿠폰을 발급 받은 이력이 있습니다.")
         }
-        this.coupon = coupon
+        this.code = coupon.getCode()
         isIssued = true
     }
 
@@ -37,7 +35,7 @@ class Member(
         return isIssued
     }
 
-    fun getCoupon(): Coupon {
-        return coupon!!
+    fun getCode(): String {
+        return code
     }
 }

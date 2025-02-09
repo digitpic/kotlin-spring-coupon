@@ -5,42 +5,53 @@ import com.kotlin.spring.coupon.model.Member
 import com.kotlin.spring.coupon.repository.CouponRepository
 import com.kotlin.spring.coupon.repository.MemberRepository
 import jakarta.transaction.Transactional
+import org.hibernate.StaleObjectStateException
+import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.stereotype.Service
-
-private const val MAX_COUPON_COUNT = 100
 
 @Service
 class CouponService(
     private val couponRepository: CouponRepository,
     private val memberRepository: MemberRepository
 ) {
+    fun issue(userId: Long): String? {
+        while (true) {
+            try {
+                return transaction(userId)
+            } catch (e: OptimisticLockingFailureException) {
+                continue
+            } catch (e: StaleObjectStateException) {
+                continue
+            }
+        }
+    }
+
     @Transactional
-    fun issue(userId: Long): Coupon? {
-        couponRepository.lockCouponsTable()
-
+    fun transaction(userId: Long): String? {
         val member: Member = memberRepository.findById(userId)
-            .orElseThrow({ throw RuntimeException("회원 정보 없음") })
-
+            .orElseThrow { throw RuntimeException("회원 정보 없음") }
         if (member.isCouponIssued()) {
-            return member.getCoupon()
+            return member.getCode()
         }
 
-        val couponCount: Long = couponRepository.count()
-
-        if (couponCount >= MAX_COUPON_COUNT) {
+        val coupon: Coupon = couponRepository.findById(1L)
+            .orElseThrow { RuntimeException("쿠폰 정보 없음") }
+        if (coupon.getRemaining() == 0) {
             return null
         }
 
-        var coupon: Coupon = Coupon.issue()
-
-        while (couponRepository.findByCode(coupon.getCode()).isNotEmpty()) {
-            coupon = Coupon.issue()
+        var newCoupon: Coupon = Coupon.issue()
+        while (memberRepository.findByCode(newCoupon.getCode()).isNotEmpty()) {
+            newCoupon = Coupon.issue()
         }
 
+        coupon.updateCode(newCoupon.getCode())
+        coupon.decreaseRemaining()
+        couponRepository.saveAndFlush(coupon)
+
         member.issueCoupon(coupon)
+        memberRepository.save(member)
 
-        couponRepository.save(coupon)
-
-        return coupon
+        return coupon.getCode()
     }
 }

@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import jakarta.persistence.Version
 
 @Entity
 @Table(name = "coupons")
@@ -14,12 +15,19 @@ class Coupon(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true)
-    private val id: Long = 0,
+    private val id: Long = 1L,
 
     @Column(name = "code", unique = true)
-    private val code: String
+    private var code: String,
+
+    @Column(name = "remaining")
+    private var remaining: Int = 100,
+
+    @Version
+    @Column(name = "version")
+    private var version: Long = 0
 ) {
-    constructor() : this(0, "")
+    constructor() : this(code = "")
 
     companion object {
         private const val DEFAULT_LENGTH: Int = 10
@@ -62,6 +70,18 @@ class Coupon(
                 throw RuntimeException()
             }
         }
+    }
+
+    fun getRemaining(): Int {
+        return this.remaining
+    }
+
+    fun decreaseRemaining() {
+        this.remaining--
+    }
+
+    fun updateCode(code: String) {
+        this.code = code
     }
 
     fun getCode(): String {
