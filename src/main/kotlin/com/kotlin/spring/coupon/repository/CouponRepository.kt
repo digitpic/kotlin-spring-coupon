@@ -13,8 +13,5 @@ interface CouponRepository : JpaRepository<Coupon, Long> {
     @Query("SELECT c FROM Coupon c")
     fun lockCouponsTable(): List<Coupon>
 
-    @Query("SELECT COUNT(c) FROM Coupon c")
-    fun countCoupons(): Long
-
     fun findByCode(code: String): MutableList<Coupon>
 }

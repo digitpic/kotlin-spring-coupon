@@ -24,7 +24,8 @@ class MemberTest {
         val member: Member = Member()
 
         // when
-        member.issueCoupon()
+        val coupon: Coupon = Coupon.issue()
+        member.issueCoupon(coupon)
         val returned: Boolean = member.isCouponIssued()
 
         // then
@@ -37,7 +38,8 @@ class MemberTest {
         val member: Member = Member()
 
         // when
-        member.issueCoupon()
+        val coupon: Coupon = Coupon.issue()
+        member.issueCoupon(coupon)
         val returned: Coupon? = member.getCoupon()
         val code: String = returned?.getCode() ?: ""
 

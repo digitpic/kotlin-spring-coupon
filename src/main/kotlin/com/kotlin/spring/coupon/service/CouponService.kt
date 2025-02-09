@@ -25,7 +25,7 @@ class CouponService(
             return member.getCoupon()
         }
 
-        val couponCount: Long = couponRepository.countCoupons()
+        val couponCount: Long = couponRepository.count()
 
         if (couponCount >= MAX_COUPON_COUNT) {
             return null
