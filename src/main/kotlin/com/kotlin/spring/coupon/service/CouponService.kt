@@ -19,35 +19,41 @@ class CouponService(
     private val memberRepository: MemberRepository,
     private val redissonClient: RedissonClient
 ) {
-    @Cacheable(value = ["coupons"], key = "#userId")
+    @Cacheable(value = ["coupons"], key = "#memberId")
     @Transactional
-    fun issue(userId: Long): Coupon? {
+    fun issue(memberId: Long): Coupon? {
         val lock: RLock = redissonClient.getLock("coupon-lock")
         if (!lock.tryLock(3, 3, TimeUnit.SECONDS)) {
             throw RuntimeException("lock 실패")
         }
 
-        val member: Member = memberRepository.findById(userId)
+        val member: Member = memberRepository.findById(memberId)
             .orElseThrow { throw RuntimeException("회원 정보 없음") }
 
-        if (member.isCouponIssued()) {
+        if (member.isIssuedCoupon()) {
             return member.getCoupon()
         }
 
-        val couponCount: Long = couponRepository.count()
-        if (couponCount >= MAX_COUPON_COUNT) {
+        if (isOverCouponLimit()) {
             return null
         }
 
-        var coupon: Coupon = Coupon.issue()
-        while (couponRepository.findByCode(coupon.getCode()).isNotEmpty()) {
-            coupon = Coupon.issue()
-        }
+        val coupon: Coupon = issueUniqueCoupon()
 
         member.issueCoupon(coupon)
         couponRepository.save(coupon)
 
         lock.unlock()
+        return coupon
+    }
+
+    private fun isOverCouponLimit() = couponRepository.count() >= MAX_COUPON_COUNT
+
+    private fun issueUniqueCoupon(): Coupon {
+        var coupon: Coupon = Coupon.issue()
+        while (couponRepository.findByCode(coupon.getCode()).isNotEmpty()) {
+            coupon = Coupon.issue()
+        }
         return coupon
     }
 }

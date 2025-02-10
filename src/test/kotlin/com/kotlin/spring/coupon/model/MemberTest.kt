@@ -12,7 +12,7 @@ class MemberTest {
         val member: Member = Member()
 
         // when
-        val returned: Boolean = member.isCouponIssued()
+        val returned: Boolean = member.isIssuedCoupon()
 
         // then
         assertThat(returned).isEqualTo(false)
@@ -26,7 +26,7 @@ class MemberTest {
         // when
         val coupon: Coupon = Coupon.issue()
         member.issueCoupon(coupon)
-        val returned: Boolean = member.isCouponIssued()
+        val returned: Boolean = member.isIssuedCoupon()
 
         // then
         assertThat(returned).isEqualTo(true)
