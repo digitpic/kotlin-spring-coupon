@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RestController
 class CouponController(
     private val couponService: CouponService
 ) {
-    @GetMapping("/issue/{userId}")
-    fun issueCoupon(@PathVariable userId: Long): ResponseEntity<CouponResponse> {
-        val coupon: Coupon? = couponService.issue(userId)
+    @GetMapping("/issue/{memberId}")
+    fun issueCoupon(@PathVariable memberId: Long): ResponseEntity<CouponResponse> {
+        val coupon: Coupon? = couponService.issue(memberId)
             ?: return ResponseEntity.notFound().build()
 
         val code: String = coupon!!.getCode()
 
         return ResponseEntity.ok()
-            .body(CouponResponse("success", userId, code))
+            .body(CouponResponse("success", memberId, code))
     }
 }

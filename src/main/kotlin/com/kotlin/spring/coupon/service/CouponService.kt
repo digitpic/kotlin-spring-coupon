@@ -15,28 +15,36 @@ class CouponService(
     private val memberRepository: MemberRepository
 ) {
     @Transactional
-    fun issue(userId: Long): Coupon? {
+    fun issue(memberId: Long): Coupon? {
         couponRepository.lockCouponsTable()
 
-        val member: Member = memberRepository.findById(userId)
+        val member: Member = memberRepository.findById(memberId)
             .orElseThrow({ throw RuntimeException("회원 정보 없음") })
         if (member.isCouponIssued()) {
             return member.getCoupon()
         }
 
-        val couponCount: Long = couponRepository.count()
-        if (couponCount >= MAX_COUPON_COUNT) {
+        if (isOverCouponLimit()) {
             return null
         }
 
-        var coupon: Coupon = Coupon.issue()
-        while (couponRepository.findByCode(coupon.getCode()).isNotEmpty()) {
-            coupon = Coupon.issue()
-        }
+        val coupon: Coupon = issueUniqueCoupon()
 
         member.issueCoupon(coupon)
         couponRepository.save(coupon)
 
         return coupon
+    }
+
+    private fun issueUniqueCoupon(): Coupon {
+        var coupon: Coupon = Coupon.issue()
+        while (couponRepository.findByCode(coupon.getCode()).isNotEmpty()) {
+            coupon = Coupon.issue()
+        }
+        return coupon
+    }
+
+    private fun isOverCouponLimit(): Boolean {
+        return couponRepository.count() >= MAX_COUPON_COUNT
     }
 }
