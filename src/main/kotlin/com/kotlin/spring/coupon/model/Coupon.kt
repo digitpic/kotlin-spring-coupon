@@ -17,7 +17,7 @@ class Coupon(
     private val id: Long = 0,
 
     @Column(name = "code", unique = true)
-    private val code: String
+    private var code: String
 ) {
     constructor() : this(0, "")
 
