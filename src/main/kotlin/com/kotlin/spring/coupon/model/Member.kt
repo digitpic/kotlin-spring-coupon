@@ -31,7 +31,7 @@ class Member(
         isIssued = true
     }
 
-    fun isCouponIssued(): Boolean {
+    fun isIssuedCoupon(): Boolean {
         return isIssued
     }
 

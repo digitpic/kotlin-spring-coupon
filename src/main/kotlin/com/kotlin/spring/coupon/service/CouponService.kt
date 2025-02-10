@@ -14,10 +14,10 @@ class CouponService(
     private val couponRepository: CouponRepository,
     private val memberRepository: MemberRepository
 ) {
-    fun issue(userId: Long): String? {
+    fun issue(memberId: Long): String? {
         while (true) {
             try {
-                return transaction(userId)
+                return transaction(memberId)
             } catch (e: OptimisticLockingFailureException) {
                 continue
             } catch (e: StaleObjectStateException) {
@@ -27,23 +27,20 @@ class CouponService(
     }
 
     @Transactional
-    fun transaction(userId: Long): String? {
-        val member: Member = memberRepository.findById(userId)
+    fun transaction(memberId: Long): String? {
+        val member: Member = memberRepository.findById(memberId)
             .orElseThrow { throw RuntimeException("회원 정보 없음") }
-        if (member.isCouponIssued()) {
+        if (member.isIssuedCoupon()) {
             return member.getCode()
         }
 
         val coupon: Coupon = couponRepository.findById(1L)
             .orElseThrow { RuntimeException("쿠폰 정보 없음") }
-        if (coupon.getRemaining() == 0) {
+        if (isOverCouponLimit(coupon)) {
             return null
         }
 
-        var newCoupon: Coupon = Coupon.issue()
-        while (memberRepository.findByCode(newCoupon.getCode()).isNotEmpty()) {
-            newCoupon = Coupon.issue()
-        }
+        val newCoupon: Coupon = issueUniqueCoupon()
 
         coupon.updateCode(newCoupon.getCode())
         coupon.decreaseRemaining()
@@ -53,5 +50,15 @@ class CouponService(
         memberRepository.save(member)
 
         return coupon.getCode()
+    }
+
+    private fun isOverCouponLimit(coupon: Coupon) = coupon.getRemaining() == 0
+
+    private fun issueUniqueCoupon(): Coupon {
+        var newCoupon: Coupon = Coupon.issue()
+        while (memberRepository.findByCode(newCoupon.getCode()).isNotEmpty()) {
+            newCoupon = Coupon.issue()
+        }
+        return newCoupon
     }
 }

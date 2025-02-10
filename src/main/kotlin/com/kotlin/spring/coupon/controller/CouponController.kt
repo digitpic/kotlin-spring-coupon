@@ -1,7 +1,6 @@
 package com.kotlin.spring.coupon.controller
 
 import com.kotlin.spring.coupon.controller.dto.CouponResponse
-import com.kotlin.spring.coupon.model.Coupon
 import com.kotlin.spring.coupon.service.CouponService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -14,12 +13,12 @@ import org.springframework.web.bind.annotation.RestController
 class CouponController(
     private val couponService: CouponService
 ) {
-    @GetMapping("/issue/{userId}")
-    fun issueCoupon(@PathVariable userId: Long): ResponseEntity<CouponResponse> {
-        val code: String? = couponService.issue(userId)
+    @GetMapping("/issue/{memberId}")
+    fun issueCoupon(@PathVariable memberId: Long): ResponseEntity<CouponResponse> {
+        val code: String? = couponService.issue(memberId)
             ?: return ResponseEntity.notFound().build()
 
         return ResponseEntity.ok()
-            .body(CouponResponse("success", userId, code!!))
+            .body(CouponResponse("success", memberId, code!!))
     }
 }
